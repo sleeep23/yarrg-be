@@ -1,1 +1,7 @@
 node_modules
+.env
+/generated/prisma
+dist
+docs
+STEPS.md 
+CONTEXT.md

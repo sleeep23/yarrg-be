@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: yarr-g-postgres
+    restart: unless-stopped
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: yarrG
+      POSTGRES_PASSWORD: yarrG0923
+      POSTGRES_DB: mydb
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

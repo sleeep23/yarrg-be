@@ -1,0 +1,96 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum DeliveryGroupStatus {
+  RECRUITING
+  ORDER_CLOSED
+  ORDER_PLACED
+  ARRIVED
+  COMPLETED
+  CANCELED
+}
+
+model DeliveryGroup {
+  id                           String              @id @default(uuid())
+  title                        String?
+  storeName                    String
+  pickupPlace                  String
+  recruitmentDeadline          DateTime
+  maxParticipants              Int
+  status                       DeliveryGroupStatus @default(RECRUITING)
+  organizerUserId              String
+  organizerDisplayNameSnapshot String // 왜 필요함?
+  orderedAt                    DateTime?
+  estimatedArrivalMinutes      Int?
+  arrivedAt                    DateTime?
+  completedAt                  DateTime?
+  createdAt                    DateTime            @default(now())
+  updatedAt                    DateTime            @updatedAt
+
+  participants Participant[]
+  settlement   Settlement?
+}
+
+model Participant {
+  id                  String   @id @default(uuid())
+  deliveryGroupId     String
+  userId              String
+  displayNameSnapshot String
+  joinedAt            DateTime @default(now())
+
+  deliveryGroup   DeliveryGroup    @relation(fields: [deliveryGroupId], references: [id], onDelete: Cascade)
+  menuRequests    MenuRequest[]
+  settlementItems SettlementItem[]
+
+  @@unique([deliveryGroupId, userId])
+  @@index([userId]) // 왜 필요하지 많이 걸쳐 있어서 그런가?
+}
+
+model MenuRequest {
+  id            String  @id @default(uuid())
+  participantId String
+  menuName      String
+  optionText    String?
+  price         Int
+  quantity      Int
+  note          String?
+
+  participant Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+}
+
+model Settlement {
+  id              String           @id @default(uuid())
+  deliveryGroupId String           @unique
+  deliveryFee     Int
+  createdAt       DateTime         @default(now())
+  deliveryGroup   DeliveryGroup    @relation(fields: [deliveryGroupId], references: [id], onDelete: Cascade)
+  items           SettlementItem[]
+}
+
+model SettlementItem {
+  id               String    @id @default(uuid())
+  settlementId     String
+  participantId    String
+  menuTotal        Int
+  deliveryFeeShare Int
+  totalAmount      Int
+  isPaid           Boolean   @default(false)
+  paidAt           DateTime?
+
+  settlement  Settlement  @relation(fields: [settlementId], references: [id], onDelete: Cascade)
+  participant Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+
+  @@unique([settlementId, participantId])
+}
