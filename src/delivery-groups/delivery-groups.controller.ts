@@ -16,6 +16,7 @@ import { CurrentUser, MockAuthGuard } from 'src/auth';
 import {
   CreateDeliveryGroupDto,
   ListDeliveryGroupsQueryDto,
+  PlaceOrderDto,
   ReplaceMyMenuRequestsDto,
 } from './dto';
 
@@ -89,5 +90,37 @@ export class DeliveryGroupsController {
   @ApiBearerAuth()
   closeOrder(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.deliveryGroupsService.closeOrder(id, user);
+  }
+
+  @Post(':id/place-order')
+  @UseGuards(MockAuthGuard)
+  @ApiBearerAuth()
+  placeOrder(
+    @Param('id') id: string,
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: PlaceOrderDto,
+  ) {
+    return this.deliveryGroupsService.placeOrder(id, user, dto);
+  }
+
+  @Post(':id/arrive')
+  @UseGuards(MockAuthGuard)
+  @ApiBearerAuth()
+  arrive(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
+    return this.deliveryGroupsService.arrive(id, user);
+  }
+
+  @Post(':id/complete')
+  @UseGuards(MockAuthGuard)
+  @ApiBearerAuth()
+  complete(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
+    return this.deliveryGroupsService.complete(id, user);
+  }
+
+  @Get(':id/settlement')
+  @UseGuards(MockAuthGuard)
+  @ApiBearerAuth()
+  findSettlement(@Param('id') id: string) {
+    return this.deliveryGroupsService.findSettlement(id);
   }
 }
