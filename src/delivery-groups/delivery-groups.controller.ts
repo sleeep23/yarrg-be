@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Post,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -12,7 +13,11 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 
 import { DeliveryGroupsService } from './delivery-groups.service';
 import { CurrentUser, MockAuthGuard } from 'src/auth';
-import { CreateDeliveryGroupDto, ListDeliveryGroupsQueryDto } from './dto';
+import {
+  CreateDeliveryGroupDto,
+  ListDeliveryGroupsQueryDto,
+  ReplaceMyMenuRequestsDto,
+} from './dto';
 
 import type { AuthenticatedUser } from 'src/auth';
 
@@ -66,5 +71,23 @@ export class DeliveryGroupsController {
   @ApiBearerAuth()
   leave(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.deliveryGroupsService.leave(id, user);
+  }
+
+  @Put(':id/my-menu-requests')
+  @UseGuards(MockAuthGuard)
+  @ApiBearerAuth()
+  replaceMyMenuRequests(
+    @Param('id') id: string,
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: ReplaceMyMenuRequestsDto,
+  ) {
+    return this.deliveryGroupsService.replaceMyMenuRequests(id, user, dto);
+  }
+
+  @Post(':id/close-order')
+  @UseGuards(MockAuthGuard)
+  @ApiBearerAuth()
+  closeOrder(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
+    return this.deliveryGroupsService.closeOrder(id, user);
   }
 }

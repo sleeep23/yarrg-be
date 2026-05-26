@@ -4,7 +4,11 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateDeliveryGroupDto, ListDeliveryGroupsQueryDto } from './dto';
+import {
+  CreateDeliveryGroupDto,
+  ListDeliveryGroupsQueryDto,
+  ReplaceMyMenuRequestsDto,
+} from './dto';
 
 import { PrismaService } from 'src/prisma';
 import { DeliveryGroupStatus } from 'generated/prisma/enums';
@@ -151,6 +155,98 @@ export class DeliveryGroupsService {
 
     return { success: true };
   }
+
+  async replaceMyMenuRequests(
+    id: string,
+    user: AuthenticatedUser,
+    dto: ReplaceMyMenuRequestsDto,
+  ) {
+    const deliveryGroup = await this.prisma.deliveryGroup.findUnique({
+      where: { id },
+      include: {
+        participants: {
+          where: {
+            userId: user.userId,
+          },
+        },
+      },
+    });
+
+    this.assertDeliveryGroupExists(deliveryGroup);
+    this.assertDeliveryGroupIsRecruiting(deliveryGroup);
+    this.assertRecruitmentDeadlineOpen(deliveryGroup);
+
+    const participant = deliveryGroup.participants[0];
+    if (!participant)
+      throw new NotFoundException('참여 정보를 찾을 수 없습니다.');
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.menuRequest.deleteMany({
+        where: { participantId: participant.id },
+      });
+      if (dto.menuRequests.length > 0) {
+        await tx.menuRequest.createMany({
+          data: dto.menuRequests.map((item) => ({
+            participantId: participant.id,
+            menuName: item.menuName,
+            optionText: item.optionText,
+            price: item.price,
+            quantity: item.quantity,
+            note: item.note,
+          })),
+        });
+      }
+    });
+
+    return this.prisma.participant.findUniqueOrThrow({
+      where: { id: participant.id },
+      include: { menuRequests: true },
+    });
+  }
+
+  async closeOrder(id: string, user: AuthenticatedUser) {
+    const deliveryGroup = await this.prisma.deliveryGroup.findUnique({
+      where: { id },
+      include: {
+        participants: {
+          include: {
+            menuRequests: true,
+          },
+        },
+      },
+    });
+
+    // 오더를 닫을 수 있는건 생성자 뿐
+    // 우선 그룹이 존재 -> 생성자이고 -> 리크루팅 상태여야 닫을 수 있는 상태임.
+    this.assertDeliveryGroupExists(deliveryGroup);
+    this.assertIsOrganizer(deliveryGroup, user);
+    this.assertDeliveryGroupIsRecruiting(deliveryGroup);
+
+    // 모든 참여자는 메뉴를 하나 이상 등록해 함.
+    const participantWithoutMenuRequest = deliveryGroup.participants.find(
+      (p) => p.menuRequests.length === 0,
+    );
+    if (participantWithoutMenuRequest)
+      throw new ConflictException(
+        '모든 참여자는 하나 이상의 메뉴를 주문해야 합니다.',
+      );
+
+    return this.prisma.deliveryGroup.update({
+      where: { id },
+      data: {
+        status: DeliveryGroupStatus.ORDER_CLOSED,
+      },
+      include: {
+        participants: {
+          include: {
+            menuRequests: true,
+          },
+        },
+      },
+    });
+  }
+
+  // 검증 헬퍼 함수들
 
   private assertDeliveryGroupExists(
     deliveryGroup: DeliveryGroup | null,
