@@ -1,9 +1,10 @@
-import type { AuthenticatedUser } from 'src/auth/authenticated-user.type';
+import type { AuthenticatedUser } from 'src/auth/types/authenticated-user.type';
 
 declare global {
   namespace Express {
-    interface Request {
-      user?: AuthenticatedUser;
+    interface User {
+      userId: AuthenticatedUser['userId'];
+      displayName: AuthenticatedUser['displayName'];
     }
   }
 }

@@ -12,7 +12,7 @@ import {
 import { ApiBearerAuth } from '@nestjs/swagger';
 
 import { DeliveryGroupsService } from './delivery-groups.service';
-import { CurrentUser, MockAuthGuard } from 'src/auth';
+import { JwtAuthGuard } from 'src/auth';
 import {
   CreateDeliveryGroupDto,
   ListDeliveryGroupsQueryDto,
@@ -21,13 +21,14 @@ import {
 } from './dto';
 
 import type { AuthenticatedUser } from 'src/auth';
+import { CurrentUser } from 'src/auth/decorator';
 
 @Controller('delivery-groups')
 export class DeliveryGroupsController {
   constructor(private readonly deliveryGroupsService: DeliveryGroupsService) {}
 
   @Get()
-  @UseGuards(MockAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   findAll(
     @CurrentUser() user: AuthenticatedUser,
@@ -37,14 +38,14 @@ export class DeliveryGroupsController {
   }
 
   @Get(':id')
-  @UseGuards(MockAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   findOne(@Param('id') id: string) {
     return this.deliveryGroupsService.findOne(id);
   }
 
   @Post()
-  @UseGuards(MockAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   create(
     @CurrentUser() user: AuthenticatedUser,
@@ -54,28 +55,28 @@ export class DeliveryGroupsController {
   }
 
   @Post(':id/cancel')
-  @UseGuards(MockAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   cancel(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.deliveryGroupsService.cancel(id, user);
   }
 
   @Post(':id/participants')
-  @UseGuards(MockAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   join(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.deliveryGroupsService.join(id, user);
   }
 
   @Delete(':id/participants/me')
-  @UseGuards(MockAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   leave(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.deliveryGroupsService.leave(id, user);
   }
 
   @Put(':id/my-menu-requests')
-  @UseGuards(MockAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   replaceMyMenuRequests(
     @Param('id') id: string,
@@ -86,14 +87,14 @@ export class DeliveryGroupsController {
   }
 
   @Post(':id/close-order')
-  @UseGuards(MockAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   closeOrder(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.deliveryGroupsService.closeOrder(id, user);
   }
 
   @Post(':id/place-order')
-  @UseGuards(MockAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   placeOrder(
     @Param('id') id: string,
@@ -104,21 +105,21 @@ export class DeliveryGroupsController {
   }
 
   @Post(':id/arrive')
-  @UseGuards(MockAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   arrive(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.deliveryGroupsService.arrive(id, user);
   }
 
   @Post(':id/complete')
-  @UseGuards(MockAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   complete(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.deliveryGroupsService.complete(id, user);
   }
 
   @Get(':id/settlement')
-  @UseGuards(MockAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   findSettlement(@Param('id') id: string) {
     return this.deliveryGroupsService.findSettlement(id);
