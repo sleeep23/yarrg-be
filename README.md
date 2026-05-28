@@ -1,98 +1,176 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# YarrG API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+YarrG API는 캠퍼스 공동 배달 주문을 위한 NestJS 백엔드입니다. 사용자는 Gistory IdP로 로그인하고, 배달 그룹을 만들거나 참여하고, 메뉴 요청을 등록한 뒤 주문과 정산을 진행합니다.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## 기술 스택
 
-## Description
+- NestJS
+- Bun
+- PostgreSQL
+- Prisma
+- Swagger/OpenAPI
+- Gistory OAuth + JWT
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## 핵심 도메인
 
-## Project setup
+- Delivery Group은 하나의 공동 배달 주문 그룹입니다.
+- Organizer는 Delivery Group을 만든 사용자입니다.
+- Organizer도 Participant입니다.
+- Participant는 특정 Delivery Group 안에서 하나의 IdP 사용자를 나타냅니다.
+- Participant는 모집 중일 때 자신의 Menu Request 목록을 통째로 교체할 수 있습니다.
+- Recruitment Deadline이 지나면 참여, 탈퇴, 메뉴 변경이 막히지만 상태가 자동으로 바뀌지는 않습니다.
+- Delivery Group 상태는 보통 `RECRUITING`, `ORDER_CLOSED`, `ORDER_PLACED`, `ARRIVED`, `COMPLETED` 순서로 진행됩니다.
+- Delivery Group은 `RECRUITING` 상태에서만 `CANCELED`가 될 수 있습니다.
+- Settlement는 Organizer가 실제 주문을 완료 처리할 때 생성됩니다.
+- Payment Confirmation은 Organizer만 변경할 수 있습니다.
 
-```bash
-$ npm install
-```
+## 로컬 실행
 
-## Compile and run the project
+의존성 설치:
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+bun install
 ```
 
-## Run tests
+로컬 PostgreSQL 실행:
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+docker compose up -d
 ```
 
-## Deployment
+`.env.example`을 참고해서 `.env`를 작성합니다.
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Prisma Client 생성 및 마이그레이션:
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+bunx prisma generate
+bunx prisma migrate dev
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+개발 서버 실행:
 
-## Resources
+```bash
+bun run start:dev
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+Swagger UI:
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+```text
+http://localhost:3000/api
+```
 
-## Support
+Prisma Studio:
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```bash
+bun run prisma:studio
+```
 
-## Stay in touch
+## 환경 변수
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+```env
+DATABASE_URL=
 
-## License
+NODE_ENV=development
+CORS_ORIGIN=
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+JWT_ACCESS_SECRET=
+JWT_ACCESS_EXPIRES_IN=1h
+
+GISTORY_CLIENT_ID=
+GISTORY_CLIENT_SECRET=
+
+GISTORY_AUTHORIZE_URL=https://idp.gistory.me/authorize
+GISTORY_TOKEN_URL=https://api.idp.gistory.me/oauth/token
+GISTORY_USERINFO_URL=https://api.idp.gistory.me/oauth/userinfo
+
+GISTORY_REDIRECT_URI=http://localhost:3000/auth/gistory/callback
+GISTORY_SCOPES=profile email student_id
+GISTORY_CODE_CHALLENGE=
+```
+
+`JWT_ACCESS_SECRET`은 충분히 긴 랜덤 문자열을 사용합니다.
+
+```bash
+openssl rand -base64 32
+```
+
+## 인증 흐름
+
+Gistory 로그인 시작:
+
+```text
+GET /auth/gistory
+```
+
+Gistory callback:
+
+```text
+GET /auth/gistory/callback?code=...
+```
+
+서버는 authorization code를 Gistory token으로 교환하고, Gistory userinfo를 조회한 뒤 YarrG access token을 발급합니다.
+
+보호된 API에는 YarrG access token을 bearer token으로 전달합니다.
+
+```bash
+curl http://localhost:3000/auth/me \
+  -H "Authorization: Bearer ACCESS_TOKEN"
+```
+
+## 주요 API
+
+Auth:
+
+- `GET /auth/gistory`
+- `GET /auth/gistory/callback`
+- `GET /auth/me`
+
+Delivery Groups:
+
+- `POST /delivery-groups`
+- `GET /delivery-groups`
+- `GET /delivery-groups/:id`
+- `POST /delivery-groups/:id/cancel`
+- `POST /delivery-groups/:id/participants`
+- `DELETE /delivery-groups/:id/participants/me`
+- `PUT /delivery-groups/:id/my-menu-requests`
+- `POST /delivery-groups/:id/close-order`
+- `POST /delivery-groups/:id/place-order`
+- `POST /delivery-groups/:id/arrive`
+- `POST /delivery-groups/:id/complete`
+- `GET /delivery-groups/:id/settlement`
+
+Settlement Items:
+
+- `PATCH /settlement-items/:id/payment-confirmation`
+
+## 자주 쓰는 명령
+
+```bash
+bun run build
+bun run start:dev
+bun run start:prod
+bun run prisma:generate
+bun run prisma:migrate
+bun run prisma:deploy
+bun run prisma:studio
+bun run lint
+bunx jest --watchman=false
+```
+
+로컬 Watchman 권한 문제로 `bun run test`가 실패하면 `bunx jest --watchman=false`를 사용합니다.
+
+## 배포 메모
+
+- 운영 DB 마이그레이션에는 `prisma migrate deploy`를 사용합니다.
+- `prisma migrate dev`는 로컬 개발용입니다.
+- Prisma Client는 `bun run build` 과정에서 생성됩니다.
+- 배포 환경의 `GISTORY_REDIRECT_URI`는 실제 public domain 기준 callback URL이어야 합니다.
+- public callback URL에는 별도 포트를 붙이지 않습니다.
+- 프론트엔드 배포 URL이 정해지면 `CORS_ORIGIN`을 설정해야 합니다.
+
+## 주의사항
+
+- `.env`는 커밋하지 않습니다.
+- `DATABASE_URL`, `JWT_ACCESS_SECRET`, `GISTORY_CLIENT_SECRET`은 외부에 노출되면 안 됩니다.
+- 이 저장소 설정에서는 `CONTEXT.md`, `STEPS.md`, `docs/`를 로컬 프로젝트 노트로 보고 Git에서 제외합니다.
