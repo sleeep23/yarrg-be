@@ -10,17 +10,17 @@ import {
 } from 'class-validator';
 
 export class CreateDeliveryGroupDto {
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ example: '같이 야식 시키실 분들 찾아요..' })
   @IsString()
   @IsOptional()
   title?: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: '기영이 숯불두마리치킨 광주첨단점' })
   @IsString()
   @IsNotEmpty()
   storeName: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: '신관 1층 로비' })
   @IsString()
   @IsNotEmpty()
   pickupPlace: string;
@@ -30,7 +30,7 @@ export class CreateDeliveryGroupDto {
   @IsDate()
   recruitmentDeadline: Date;
 
-  @ApiProperty({ minimum: 1 })
+  @ApiProperty({ minimum: 1, example: 4 })
   @IsNumber()
   @Min(1)
   maxParticipants: number;

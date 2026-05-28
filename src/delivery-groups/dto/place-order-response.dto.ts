@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { DeliveryGroupResponseDto } from './delivery-group-response.dto';
-import { SettlementResponseDto } from './settlement-response.dto';
+import { SettlementResponseDto } from 'src/settlement-items/dto';
 
-export default class PlaceOrderResponseDto {
+export class PlaceOrderResponseDto {
   @ApiProperty({ type: DeliveryGroupResponseDto })
   deliveryGroup: DeliveryGroupResponseDto;
 

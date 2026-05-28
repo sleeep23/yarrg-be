@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { MenuResponseResponseDto } from './menu-request-response.dto';
+import { MenuRequestResponseDto } from './menu-request-response.dto';
 
 export class ParticipantResponseDto {
   @ApiProperty()
@@ -17,6 +17,6 @@ export class ParticipantResponseDto {
   @ApiProperty({ type: String, format: 'date-time' })
   joinedAt: string;
 
-  @ApiProperty({ type: MenuResponseResponseDto, isArray: true })
-  menuRequests?: MenuResponseResponseDto[];
+  @ApiProperty({ type: MenuRequestResponseDto, isArray: true })
+  menuRequests?: MenuRequestResponseDto[];
 }

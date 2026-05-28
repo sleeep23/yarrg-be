@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-export class MenuResponseResponseDto {
+export class MenuRequestResponseDto {
   @ApiProperty()
   id: string;
 
