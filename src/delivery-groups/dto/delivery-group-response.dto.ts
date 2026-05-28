@@ -48,6 +48,6 @@ export class DeliveryGroupResponseDto {
   @ApiProperty({ type: String, format: 'date-time' })
   updatedAt: Date;
 
-  @ApiPropertyOptional({ type: ParticipantResponseDto, isArray: true })
+  @ApiPropertyOptional({ type: () => ParticipantResponseDto, isArray: true })
   participants?: ParticipantResponseDto[];
 }

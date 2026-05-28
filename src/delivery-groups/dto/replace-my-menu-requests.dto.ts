@@ -40,7 +40,7 @@ export class MenuRequestDto {
 }
 
 export class ReplaceMyMenuRequestsDto {
-  @ApiProperty({ type: MenuRequestDto, isArray: true })
+  @ApiProperty({ type: () => MenuRequestDto, isArray: true })
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => MenuRequestDto)
